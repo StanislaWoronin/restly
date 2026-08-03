@@ -1,4 +1,4 @@
-use crate::components::url_block::UrlBlock;
+use crate::components::{method_block::MethodBlock, url_block::UrlBlock};
 
 #[derive(Clone, Debug)]
 pub enum FocusArea {
@@ -22,6 +22,7 @@ pub enum FocusArea {
 
 pub struct App {
     pub focus_area: FocusArea,
+    pub method_block: MethodBlock,
     pub url_block: UrlBlock,
 }
 
@@ -29,6 +30,7 @@ impl App {
     pub fn new() -> Self {
         Self {
             focus_area: FocusArea::UrlBlock,
+            method_block: MethodBlock::new(),
             url_block: UrlBlock::new(),
         }
     }

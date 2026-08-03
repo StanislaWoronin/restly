@@ -1,6 +1,7 @@
 use std::io::Stdout;
 
 use color_eyre::eyre::WrapErr;
+use crossterm::event::{self, Event, KeyEventKind};
 use ratatui::{Terminal, backend::CrosstermBackend};
 
 mod app;
@@ -29,6 +30,12 @@ fn main() -> color_eyre::Result<()> {
 fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>, app: &mut App) -> color_eyre::Result<()> {
     loop {
         terminal.draw(|frame| ui::ui(frame, app))?;
+
+        if let Event::Key(key) = event::read()?
+            && key.kind == KeyEventKind::Press
+        {
+            break;
+        }
     }
 
     Ok(())

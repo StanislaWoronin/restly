@@ -1,10 +1,12 @@
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
-    widgets::{Block, Borders},
 };
 
-use crate::app::{App, FocusArea};
+use crate::{
+    app::{App, FocusArea},
+    components::EditableComponent,
+};
 
 pub fn ui(frame: &mut Frame, app: &mut App) {
     let focus = app.focus_area.clone();
@@ -46,15 +48,13 @@ fn draw_page(app: &App, frame: &mut Frame) {
 
     let [method_area, url_area] = Layout::default()
         .direction(Direction::Horizontal)
-        .constraints([Constraint::Length(8), Constraint::Min(0)])
+        .constraints([Constraint::Length(10), Constraint::Min(0)])
         .split(top_area)
         .as_ref()
         .try_into()
         .unwrap();
 
-    app.url_block.draw(frame, url_area);
     app.method_block.draw(frame, method_area);
-
-    let tabs_block = Block::default().borders(Borders::ALL).title("Tabs");
-    frame.render_widget(tabs_block, tabs_area);
+    app.url_block.draw(frame, url_area);
+    app.tab_block.draw(frame, tabs_area);
 }

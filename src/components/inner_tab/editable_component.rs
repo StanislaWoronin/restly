@@ -1,6 +1,6 @@
-use crate::components::{EditableComponent, TabsBlock, tab::tabs_block::Tab};
+use crate::components::{EditableComponent, InnerTab, InnerTabs};
 
-impl EditableComponent for TabsBlock {
+impl EditableComponent for InnerTabs {
     fn is_focused(&self) -> bool {
         self.is_focused
     }
@@ -11,7 +11,7 @@ impl EditableComponent for TabsBlock {
 
     fn content(&self) -> String {
         match self.active_tab {
-            Tab::Request => self.request_tab.get_contentent(),
+            InnerTab::Request => self.request_tab.get_contentent(),
             _ => "Some default content".to_string(),
         }
     }

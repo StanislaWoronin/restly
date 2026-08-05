@@ -1,6 +1,6 @@
 use crate::components::RequestTab;
 
-pub enum Tab {
+pub enum InnerTab {
     Auth,
     Header,
     Params,
@@ -8,17 +8,17 @@ pub enum Tab {
     Response,
 }
 
-pub struct TabsBlock {
-    pub active_tab: Tab,
+pub struct InnerTabs {
+    pub active_tab: InnerTab,
     pub is_focused: bool,
     pub is_editing: bool,
     pub request_tab: RequestTab,
 }
 
-impl TabsBlock {
+impl InnerTabs {
     pub fn new() -> Self {
         Self {
-            active_tab: Tab::Request,
+            active_tab: InnerTab::Request,
             is_focused: false,
             is_editing: false,
             request_tab: RequestTab::new(),

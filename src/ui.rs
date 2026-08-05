@@ -1,6 +1,8 @@
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
+    style::{Color, Style},
+    widgets::{Block, BorderType, Borders},
 };
 
 use crate::{
@@ -27,21 +29,42 @@ pub fn ui(frame: &mut Frame, app: &mut App) {
     }
 }
 
-fn draw_page(app: &App, frame: &mut Frame) {
-    // Основная область с отступами
-    let area = frame.area();
-    let inner_area = Rect {
-        x: area.x + 1,
+fn calc_area(area: Rect) -> Rect {
+    Rect {
+        x: area.x + 2,
         y: area.y + 1,
-        width: area.width - 2,
+        width: area.width - 4,
         height: area.height - 2,
-    };
+    }
+}
 
-    // Делим внутреннюю область
+fn draw_block(frame: &mut Frame, area: Rect, border_color: Color) {
+    let block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(border_color))
+        .border_type(BorderType::Rounded);
+
+    frame.render_widget(block, area);
+}
+
+fn draw_page(app: &App, frame: &mut Frame) {
+    let inner_area = calc_area(frame.area());
+
+    draw_block(frame, inner_area, Color::DarkGray);
+
+    let border_block = Block::default()
+        .borders(Borders::ALL)
+        .border_style(Style::default().fg(Color::DarkGray))
+        .border_type(BorderType::Rounded);
+
+    frame.render_widget(border_block, inner_area);
+
+    let content_area = calc_area(inner_area);
+
     let [top_area, tabs_area] = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(3), Constraint::Min(0)])
-        .split(inner_area)
+        .split(content_area)
         .as_ref()
         .try_into()
         .unwrap();
@@ -56,5 +79,5 @@ fn draw_page(app: &App, frame: &mut Frame) {
 
     app.method_block.draw(frame, method_area);
     app.url_block.draw(frame, url_area);
-    app.tab_block.draw(frame, tabs_area);
+    app.inner_tabs.draw(frame, tabs_area);
 }

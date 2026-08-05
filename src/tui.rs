@@ -9,7 +9,6 @@ use ratatui::{
     },
 };
 
-/// Initialize the terminal
 pub fn init() -> io::Result<ratatui::Terminal<CrosstermBackend<Stdout>>> {
     execute!(stdout(), EnterAlternateScreen)?;
     enable_raw_mode()?;
@@ -20,12 +19,11 @@ pub fn init() -> io::Result<ratatui::Terminal<CrosstermBackend<Stdout>>> {
 fn set_panic_hook() {
     let hook = std::panic::take_hook();
     std::panic::set_hook(Box::new(move |panic_info| {
-        let _ = restore(); // ignore any errors as we are already failing
+        let _ = restore();
         hook(panic_info);
     }));
 }
 
-/// Restore the terminal to its original state
 pub fn restore() -> io::Result<()> {
     execute!(stdout(), LeaveAlternateScreen)?;
     disable_raw_mode()?;

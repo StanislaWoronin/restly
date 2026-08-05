@@ -1,4 +1,9 @@
-use crate::components::{MethodBlock, TabsBlock, UrlBlock};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
+
+use crate::{
+    components::{InnerTabs, MethodBlock, OutherTabs, UrlBlock},
+    key_handler::KeyHandler,
+};
 
 #[derive(Clone, Debug)]
 pub enum FocusArea {
@@ -23,8 +28,10 @@ pub enum FocusArea {
 pub struct App {
     pub focus_area: FocusArea,
     pub method_block: MethodBlock,
-    pub tab_block: TabsBlock,
+    pub inner_tabs: InnerTabs,
     pub url_block: UrlBlock,
+    pub outher_tabs: OutherTabs,
+    pub should_quit: bool,
 }
 
 impl App {
@@ -32,8 +39,22 @@ impl App {
         Self {
             focus_area: FocusArea::UrlBlock,
             method_block: MethodBlock::new(),
-            tab_block: TabsBlock::new(),
+            outher_tabs: OutherTabs::new(),
+            inner_tabs: InnerTabs::new(),
             url_block: UrlBlock::new(),
+            should_quit: false,
         }
+    }
+
+    pub fn process_key(&mut self, key: KeyEvent) {
+        if key.code == KeyCode::Char('c') && key.modifiers.contains(KeyModifiers::CONTROL) {
+            self.should_quit = true;
+        }
+    }
+}
+
+impl KeyHandler for App {
+    fn set_quit(&mut self) {
+        self.should_quit = true;
     }
 }

@@ -6,6 +6,7 @@ use ratatui::{Terminal, backend::CrosstermBackend};
 
 mod app;
 mod components;
+mod key_handler;
 mod tui;
 mod ui;
 
@@ -18,9 +19,10 @@ fn main() -> color_eyre::Result<()> {
     let mut app = App::new();
 
     let result = run(&mut terminal, &mut app).wrap_err("run failed");
+
     if let Err(err) = tui::restore() {
         eprintln!(
-            "failed to restore terminal. Run `reset` or restart your terminal to recover: {err}"
+            "Failed to restore terminal. Run `reset` or restart your terminal to recover: {err}"
         );
     }
 
@@ -34,6 +36,10 @@ fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>, app: &mut App) -> colo
         if let Event::Key(key) = event::read()?
             && key.kind == KeyEventKind::Press
         {
+            app.process_key(key);
+        }
+
+        if app.should_quit {
             break;
         }
     }

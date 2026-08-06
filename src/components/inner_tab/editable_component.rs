@@ -10,7 +10,9 @@ impl EditableComponent for InnerTabs {
     }
 
     fn content(&self) -> String {
-        match self.active_tab {
+        let active_tab_name = self.get_tab_name();
+
+        match active_tab_name {
             InnerTab::Request => self.request_tab.get_contentent(),
             _ => "Some default content".to_string(),
         }

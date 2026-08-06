@@ -38,30 +38,14 @@ fn calc_area(area: Rect) -> Rect {
     }
 }
 
-fn draw_block(frame: &mut Frame, area: Rect, border_color: Color) {
-    let block = Block::default()
-        .borders(Borders::ALL)
-        .border_style(Style::default().fg(border_color))
-        .border_type(BorderType::Rounded);
-
-    frame.render_widget(block, area);
-}
-
 fn draw_page(app: &App, frame: &mut Frame) {
-    let inner_area = calc_area(frame.area());
+    let outer_area = calc_area(frame.area());
 
-    draw_block(frame, inner_area, Color::DarkGray);
+    app.outher_tabs.draw(frame, outer_area);
 
-    let border_block = Block::default()
-        .borders(Borders::ALL)
-        .border_style(Style::default().fg(Color::DarkGray))
-        .border_type(BorderType::Rounded);
+    let content_area = calc_area(outer_area);
 
-    frame.render_widget(border_block, inner_area);
-
-    let content_area = calc_area(inner_area);
-
-    let [top_area, tabs_area] = Layout::default()
+    let [top_area, inner_area] = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(3), Constraint::Min(0)])
         .split(content_area)
@@ -79,5 +63,5 @@ fn draw_page(app: &App, frame: &mut Frame) {
 
     app.method_block.draw(frame, method_area);
     app.url_block.draw(frame, url_area);
-    app.inner_tabs.draw(frame, tabs_area);
+    app.inner_tabs.draw(frame, inner_area);
 }

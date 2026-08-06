@@ -50,6 +50,9 @@ impl App {
         if key.code == KeyCode::Char('c') && key.modifiers.contains(KeyModifiers::CONTROL) {
             self.should_quit = true;
         }
+
+        self.inner_tabs.process_key(key);
+        self.outher_tabs.process_key(key);
     }
 }
 

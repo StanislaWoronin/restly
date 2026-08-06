@@ -6,7 +6,7 @@ use ratatui::{Terminal, backend::CrosstermBackend};
 
 mod app;
 mod components;
-mod key_handler;
+pub mod key_handler;
 mod tui;
 mod ui;
 

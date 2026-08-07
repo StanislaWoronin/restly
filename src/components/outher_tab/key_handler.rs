@@ -1,9 +1,22 @@
 use crate::{
-    components::{OUTER_TAB_LEN, OutherTabs},
+    app::application::FocusArea,
+    components::{OUTER_TAB, OUTER_TAB_LEN, OutherTab, OutherTabs},
     key_handler::{Direction, KeyHandler},
 };
 
 impl KeyHandler for OutherTabs {
+    fn is_focused(&self, area: FocusArea) -> bool {
+        match area {
+            FocusArea::OutherTabs => {
+                matches!(
+                    OUTER_TAB[self.active_tab],
+                    OutherTab::Auth | OutherTab::Header | OutherTab::Params | OutherTab::Request
+                )
+            }
+            _ => false,
+        }
+    }
+
     fn change_tab(&mut self, direction: Direction) {
         match direction {
             Direction::Positive => {

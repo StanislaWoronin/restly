@@ -15,7 +15,7 @@ pub enum InnerTab {
     Response,
 }
 
-const INNER_TAB: [InnerTab; 2] = [InnerTab::Request, InnerTab::Response];
+pub const INNER_TAB: [InnerTab; 2] = [InnerTab::Request, InnerTab::Response];
 
 pub const INNER_TAB_LEN: usize = INNER_TAB.len();
 

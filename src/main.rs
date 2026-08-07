@@ -10,7 +10,7 @@ pub mod key_handler;
 mod tui;
 mod ui;
 
-use app::App;
+pub use app::application::{App, FocusArea};
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
@@ -36,7 +36,7 @@ fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>, app: &mut App) -> colo
         if let Event::Key(key) = event::read()?
             && key.kind == KeyEventKind::Press
         {
-            app.process_key(key);
+            app.handle_key(key);
         }
 
         if app.should_quit {

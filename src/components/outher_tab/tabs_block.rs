@@ -17,7 +17,7 @@ pub enum OutherTab {
     Request,
 }
 
-const OUTER_TAB: [OutherTab; 4] = [
+pub const OUTER_TAB: [OutherTab; 4] = [
     OutherTab::Request,
     OutherTab::Auth,
     OutherTab::Header,

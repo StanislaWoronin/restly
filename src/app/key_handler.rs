@@ -3,8 +3,10 @@ use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use crate::{App, app::log::get_logger, key_handler::KeyHandler};
 
 impl KeyHandler for App {
-    fn set_quit(&mut self) {
+    fn set_quit(&mut self) -> bool {
         self.should_quit = true;
+
+        true
     }
 
     fn change_debug_mod(&mut self, key: KeyEvent) -> bool {

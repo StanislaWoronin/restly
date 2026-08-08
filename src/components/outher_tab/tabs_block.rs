@@ -9,7 +9,7 @@ use strum::{Display, EnumIter};
 
 use crate::components::EditableComponent;
 
-#[derive(Debug, Display, PartialEq, EnumIter)]
+#[derive(Clone, Copy, Debug, Display, PartialEq, EnumIter)]
 pub enum OutherTab {
     Auth,
     Header,
@@ -38,6 +38,13 @@ impl OutherTabs {
             active_tab: 0,
             is_focused: false,
             is_editing: false,
+        }
+    }
+
+    pub fn get_active_tab_name(&self) -> OutherTab {
+        match OUTER_TAB.get(self.active_tab) {
+            Some(tab_name) => *tab_name,
+            None => OutherTab::Request,
         }
     }
 

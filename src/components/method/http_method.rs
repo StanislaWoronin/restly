@@ -1,21 +1,20 @@
-use core::fmt::{Display, Formatter, Result};
+use strum::Display;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Display)]
 pub enum HttpMethod {
+    Delete,
     Get,
+    Patch,
     Post,
     Put,
-    Delete,
 }
 
-impl Display for HttpMethod {
-    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let s = match self {
-            HttpMethod::Get => "GET",
-            HttpMethod::Post => "POST",
-            HttpMethod::Put => "PUT",
-            HttpMethod::Delete => "DELETE",
-        };
-        write!(f, "{}", s)
-    }
-}
+pub const HTTP_METHOD: [HttpMethod; 5] = [
+    HttpMethod::Delete,
+    HttpMethod::Get,
+    HttpMethod::Patch,
+    HttpMethod::Post,
+    HttpMethod::Put,
+];
+
+pub const HTTP_METHOD_LEN: usize = HTTP_METHOD.len();

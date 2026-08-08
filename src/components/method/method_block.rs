@@ -1,15 +1,17 @@
 use ratatui::{
     Frame,
     layout::{Alignment, Rect},
-    style::Style,
-    widgets::{Block, BorderType, Borders, Paragraph},
+    style::{Color, Style},
+    widgets::{Block, BorderType, Borders, Clear, List, ListItem, ListState, Paragraph},
 };
 
-use crate::components::{EditableComponent, method::HttpMethod};
+use crate::components::{
+    EditableComponent,
+    method::{HTTP_METHOD, HTTP_METHOD_LEN, HttpMethod},
+};
 
 pub struct MethodBlock {
     pub method: HttpMethod,
-    pub is_focused: bool,
     pub is_editing: bool,
 }
 
@@ -17,7 +19,6 @@ impl MethodBlock {
     pub fn new() -> Self {
         Self {
             method: HttpMethod::Get,
-            is_focused: false,
             is_editing: false,
         }
     }
@@ -48,5 +49,42 @@ impl MethodBlock {
             .alignment(Alignment::Left);
 
         frame.render_widget(paragraph, area);
+    }
+
+    pub fn draw_popup(&self, frame: &mut Frame, is_debug_mode: bool) {
+        let area = frame.area();
+
+        let list_width = 25;
+        let list_height = HTTP_METHOD_LEN as u16 + 2;
+
+        let list_area = Rect::new(
+            area.x + (area.width - list_width) / 2,
+            area.y + (area.height - list_height) / 2,
+            list_width,
+            list_height,
+        );
+
+        frame.render_widget(Clear, list_area);
+
+        let block = Block::default()
+            .borders(Borders::ALL)
+            .title(" Select HTTP Method ")
+            .style(Style::default().bg(Color::DarkGray));
+        frame.render_widget(block.clone(), list_area);
+
+        let inner_area = block.inner(list_area);
+
+        let items: Vec<ListItem> = HTTP_METHOD
+            .iter()
+            .map(|method| {
+                ListItem::new(format!("  {}", method)).style(Style::default().bg(Color::Black))
+            })
+            .collect();
+
+        let list = List::new(items)
+            .highlight_style(Style::default().bg(Color::Gray).fg(Color::Black))
+            .highlight_symbol("> ");
+
+        frame.render_stateful_widget(list, inner_area, &mut ListState::default());
     }
 }

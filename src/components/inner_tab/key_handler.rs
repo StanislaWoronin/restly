@@ -22,14 +22,19 @@ impl KeyHandler for InnerTabs {
         }
     }
 
-    fn change_tab(&mut self, direction: Direction) {
+    fn change_tab(&mut self, direction: Direction) -> bool {
         match direction {
             Direction::Positive => {
                 self.active_tab = (self.active_tab + 1) % INNER_TAB_LEN;
+
+                true
             }
             Direction::Negative => {
                 self.active_tab = (self.active_tab + INNER_TAB_LEN - 1) % INNER_TAB_LEN;
+
+                true
             }
+            _ => false,
         }
     }
 }

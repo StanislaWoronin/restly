@@ -2,7 +2,7 @@ use crate::components::{EditableComponent, MethodBlock};
 
 impl EditableComponent for MethodBlock {
     fn is_focused(&self) -> bool {
-        self.is_focused
+        self.is_editing
     }
 
     fn is_editing(&self) -> bool {

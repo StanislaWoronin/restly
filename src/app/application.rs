@@ -2,16 +2,17 @@ use crossterm::event::KeyEvent;
 use strum::Display;
 
 use crate::{
+    app::key_buffer::{clear_buffer, set_buffer},
     components::{InnerTabs, MethodBlock, OutherTabs, UrlBlock},
     key_handler::KeyHandler,
 };
 
-#[derive(Clone, Debug, Display, PartialEq)]
+#[derive(Clone, Copy, Debug, Display, PartialEq)]
 pub enum FocusArea {
     App,
     MethodBlock,
-    MethodList,
-    RequestLib,
+    // MethodList,
+    // RequestLib,
     InnerTabs,
     OutherTabs,
     UrlBlock,
@@ -41,8 +42,15 @@ impl App {
     }
 
     pub fn handle_key(&mut self, key: KeyEvent) {
-        let _ = self.process_key(key, FocusArea::App)
-            || self.inner_tabs.process_key(key, self.focus_area.clone())
-            || self.outher_tabs.process_key(key, self.focus_area.clone());
+        let is_processed = self.process_key(key, FocusArea::App)
+            || self.inner_tabs.process_key(key, self.focus_area)
+            || self.outher_tabs.process_key(key, self.focus_area)
+            || self.method_block.process_key(key, FocusArea::MethodBlock);
+
+        if is_processed {
+            clear_buffer();
+        } else {
+            set_buffer(key.code);
+        }
     }
 }

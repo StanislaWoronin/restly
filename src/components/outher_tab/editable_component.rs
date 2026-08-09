@@ -1,4 +1,4 @@
-use crate::components::{EditableComponent, OutherTabs, outher_tab::tabs_block::OutherTab};
+use crate::components::{EditableComponent, OutherTabs};
 
 impl EditableComponent for OutherTabs {
     fn is_focused(&self) -> bool {
@@ -10,9 +10,10 @@ impl EditableComponent for OutherTabs {
     }
 
     fn content(&self) -> String {
-        match self.active_tab {
-            // OutherTab::Auth => self.auth_tab.get_contentent(),
-            _ => "Some default auth content".to_string(),
-        }
+        // match self.active_tab {
+        //     // OutherTab::Auth => self.auth_tab.get_contentent(),
+        //     _ => "Some default auth content".to_string(),
+        // }
+        "Some default auth content".to_string()
     }
 }

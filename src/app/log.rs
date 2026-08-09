@@ -13,8 +13,8 @@ use std::sync::Mutex;
 #[derive(Clone)]
 pub enum LogLevel {
     Info,
-    Warning,
-    Error,
+    // Warning,
+    // Error,
     Debug,
 }
 
@@ -22,8 +22,7 @@ impl LogLevel {
     pub fn color(&self) -> Color {
         match self {
             LogLevel::Info => Color::Cyan,
-            LogLevel::Warning => Color::Yellow,
-            LogLevel::Error => Color::Red,
+
             LogLevel::Debug => Color::Gray,
         }
     }
@@ -31,8 +30,8 @@ impl LogLevel {
     pub fn prefix(&self) -> &'static str {
         match self {
             LogLevel::Info => "[INFO]",
-            LogLevel::Warning => "[WARN]",
-            LogLevel::Error => "[ERR]",
+            // LogLevel::Warning => "[WARN]",
+            // LogLevel::Error => "[ERR]",
             LogLevel::Debug => "[DBG]",
         }
     }
@@ -143,9 +142,9 @@ impl DebugLogger {
         frame.render_widget(paragraph, area);
     }
 
-    pub fn clear(&mut self) {
-        self.logs.clear();
-    }
+    // pub fn clear(&mut self) {
+    //     self.logs.clear();
+    // }
 }
 
 static DEBUG_LOGGER: Lazy<Mutex<DebugLogger>> = Lazy::new(|| Mutex::new(DebugLogger::new()));

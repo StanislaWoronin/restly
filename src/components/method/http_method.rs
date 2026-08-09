@@ -1,6 +1,6 @@
 use strum::Display;
 
-#[derive(Debug, Clone, Display)]
+#[derive(Debug, Clone, Copy, Display)]
 pub enum HttpMethod {
     Delete,
     Get,

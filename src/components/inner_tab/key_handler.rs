@@ -1,40 +1,37 @@
-use crate::{
-    app::application::FocusArea,
-    components::{
-        INNER_TAB,
-        InnerTab::{self},
-        InnerTabs,
-        inner_tab::tabs_block::INNER_TAB_LEN,
-    },
-    key_handler::{Direction, KeyHandler},
-};
+use crossterm::event::{KeyCode, KeyEvent};
+
+use crate::{app::application::FocusArea, components::InnerTabs, key_handler::KeyHandler};
 
 impl KeyHandler for InnerTabs {
-    fn is_focused(&self, area: FocusArea) -> bool {
-        match area {
-            FocusArea::InnerTabs => {
-                matches!(
-                    INNER_TAB[self.active_tab],
-                    InnerTab::Request | InnerTab::Response
-                )
-            }
-            _ => false,
-        }
+    fn get_component_name(&self) -> FocusArea {
+        FocusArea::InnerTabs
     }
 
-    fn change_tab(&mut self, direction: Direction) -> bool {
-        match direction {
-            Direction::Positive => {
-                self.active_tab = (self.active_tab + 1) % INNER_TAB_LEN;
-
-                true
-            }
-            Direction::Negative => {
-                self.active_tab = (self.active_tab + INNER_TAB_LEN - 1) % INNER_TAB_LEN;
-
-                true
-            }
-            _ => false,
-        }
+    fn set_focus(&self, key: KeyEvent, buffer: &mut KeyCode) -> Option<FocusArea> {
+        self.request_tab.set_focus(key, buffer)
     }
+
+    //     match FOCUS_AREA.get().unwrap() {
+    //         FocusArea::InnerTabs => {
+    //             matches!(
+    //                 INNER_TAB[self.active_tab],
+    //                 InnerTab::Request | InnerTab::Response
+    //             )
+    //         }
+    //         _ => false,
+    //     }
+    // }
+    //
+    // fn let_change(&mut self, direction: Direction) -> bool {
+    //     match direction {
+    //         Direction::Positive => {
+    //             self.active_tab = (self.active_tab + 1) % INNER_TAB_LEN;
+    //         }
+    //         Direction::Negative => {
+    //             self.active_tab = (self.active_tab + INNER_TAB_LEN - 1) % INNER_TAB_LEN;
+    //         }
+    //     };
+    //
+    //     true
+    // }
 }

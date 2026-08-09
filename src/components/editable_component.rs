@@ -13,7 +13,7 @@ pub trait EditableComponent {
     fn border_color(&self) -> Color {
         if self.is_focused() {
             if self.is_editing() {
-                Color::LightRed
+                Color::Rgb(94, 21, 21)
             } else {
                 Color::LightGreen
             }

@@ -3,7 +3,7 @@ use ratatui::{
     layout::{Alignment, Rect},
     style::{Color, Style},
     text::{Line, Span},
-    widgets::{Block, Borders},
+    widgets::{Block, BorderType::Rounded, Borders},
 };
 use strum::Display;
 
@@ -69,7 +69,7 @@ impl InnerTabs {
         let block = Block::default()
             .borders(Borders::ALL)
             .border_style(Style::default().fg(border_color))
-            .border_type(ratatui::widgets::BorderType::Rounded)
+            .border_type(Rounded)
             .title(Line::from(title_spans))
             .title_alignment(Alignment::Left);
 

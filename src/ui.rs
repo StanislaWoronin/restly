@@ -4,33 +4,18 @@ use ratatui::{
 };
 
 use crate::{
-    App, FocusArea,
+    App,
     app::log::get_logger,
     components::{EditableComponent, OutherTab},
 };
 
 pub fn ui(frame: &mut Frame, app: &mut App) {
-    let focus = app.focus_area;
-
     if app.outher_tabs.get_active_tab_name() == OutherTab::Request {
-        draw_page(app, frame);
+        draw_request_page(app, frame);
 
         if app.method_block.is_editing {
             app.method_block.draw_popup(frame, app.debug_mod);
         };
-    }
-
-    match app.focus_area {
-        // Группа вариантов, которые используют draw_page()
-        FocusArea::InnerTabs | FocusArea::UrlBlock => draw_page(app, frame),
-
-        // Одиночные варианты
-        // FocusArea::AuthManager => AuthManager::draw(),
-        // FocusArea::MethodList => MethodList::draw(),
-        // FocusArea::QueryParamsManager => QueryParamsManager::draw(),
-
-        // Обработка всех остальных (если есть)
-        _ => panic!("Focus area {:?} not allowed", focus),
     }
 }
 
@@ -54,7 +39,7 @@ fn calc_debug_area(area: Rect) -> Rect {
     }
 }
 
-fn draw_page(app: &App, frame: &mut Frame) {
+fn draw_request_page(app: &App, frame: &mut Frame) {
     let is_debug_mod = app.debug_mod;
 
     let outer_area = calc_area(frame.area(), is_debug_mod);

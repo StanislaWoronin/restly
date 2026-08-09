@@ -2,7 +2,11 @@ use ratatui::{
     Frame,
     layout::{Alignment, Rect},
     style::{Color, Style},
-    widgets::{Block, BorderType, Borders, Clear, List, ListItem, ListState, Paragraph},
+    widgets::{
+        Block,
+        BorderType::{self, Rounded},
+        Borders, Clear, List, ListItem, ListState, Paragraph,
+    },
 };
 
 use crate::components::{
@@ -11,22 +15,29 @@ use crate::components::{
 };
 
 pub struct MethodBlock {
-    pub method: HttpMethod,
+    pub method: usize,
     pub is_editing: bool,
 }
 
 impl MethodBlock {
     pub fn new() -> Self {
         Self {
-            method: HttpMethod::Get,
+            method: 0,
             is_editing: false,
+        }
+    }
+
+    pub fn get_method_name(&self) -> HttpMethod {
+        match HTTP_METHOD.get(self.method) {
+            Some(&tab) => tab,
+            None => HttpMethod::Get,
         }
     }
 
     pub fn draw(&self, frame: &mut Frame, area: Rect) {
         let border_color = self.border_color();
 
-        let value = self.method.to_string();
+        let value = self.get_method_name().to_string();
 
         let text_width = value.len();
         let area_width = (area.width - 2) as usize;
@@ -56,10 +67,11 @@ impl MethodBlock {
 
         let list_width = 25;
         let list_height = HTTP_METHOD_LEN as u16 + 2;
+        let debug_factor = if is_debug_mode { 2 } else { 1 };
 
         let list_area = Rect::new(
-            area.x + (area.width - list_width) / 2,
-            area.y + (area.height - list_height) / 2,
+            (area.width - list_width) / (2 * debug_factor),
+            (area.height - list_height) / 2,
             list_width,
             list_height,
         );
@@ -69,7 +81,9 @@ impl MethodBlock {
         let block = Block::default()
             .borders(Borders::ALL)
             .title(" Select HTTP Method ")
-            .style(Style::default().bg(Color::DarkGray));
+            .style(Style::default().bg(Color::DarkGray))
+            .border_type(Rounded);
+
         frame.render_widget(block.clone(), list_area);
 
         let inner_area = block.inner(list_area);
@@ -77,14 +91,17 @@ impl MethodBlock {
         let items: Vec<ListItem> = HTTP_METHOD
             .iter()
             .map(|method| {
-                ListItem::new(format!("  {}", method)).style(Style::default().bg(Color::Black))
+                ListItem::new(format!("  {}", method)).style(Style::default().bg(Color::DarkGray))
             })
             .collect();
 
         let list = List::new(items)
             .highlight_style(Style::default().bg(Color::Gray).fg(Color::Black))
-            .highlight_symbol("> ");
+            .highlight_symbol("▶ ");
 
-        frame.render_stateful_widget(list, inner_area, &mut ListState::default());
+        let mut state = ListState::default();
+        state.select(Some(self.method));
+
+        frame.render_stateful_widget(list, inner_area, &mut state);
     }
 }

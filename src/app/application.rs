@@ -1,8 +1,7 @@
-use crossterm::event::KeyEvent;
+use crossterm::event::{KeyCode, KeyEvent};
 use strum::Display;
 
 use crate::{
-    app::key_buffer::{clear_buffer, set_buffer},
     components::{InnerTabs, MethodBlock, OutherTabs, UrlBlock},
     key_handler::KeyHandler,
 };
@@ -11,9 +10,10 @@ use crate::{
 pub enum FocusArea {
     App,
     MethodBlock,
-    // MethodList,
-    // RequestLib,
+    RequestLib,
     InnerTabs,
+    RequestTab,
+    ResponseTab,
     OutherTabs,
     UrlBlock,
 }
@@ -26,6 +26,7 @@ pub struct App {
     pub outher_tabs: OutherTabs,
     pub should_quit: bool,
     pub debug_mod: bool,
+    pub key_buffer: Option<KeyCode>,
 }
 
 impl App {
@@ -38,19 +39,38 @@ impl App {
             url_block: UrlBlock::new(),
             should_quit: false,
             debug_mod: false,
+            key_buffer: None,
         }
     }
 
-    pub fn handle_key(&mut self, key: KeyEvent) {
-        let is_processed = self.process_key(key, FocusArea::App)
-            || self.inner_tabs.process_key(key, self.focus_area)
-            || self.outher_tabs.process_key(key, self.focus_area)
-            || self.method_block.process_key(key, FocusArea::MethodBlock);
-
+    pub fn set_buffer(&mut self, key: KeyCode, is_processed: bool) {
         if is_processed {
-            clear_buffer();
+            self.key_buffer = None;
         } else {
-            set_buffer(key.code);
+            self.key_buffer = Some(key);
         }
+    }
+
+    pub fn change_focus(&mut self, key: KeyCode) {
+        let new_area = self.set_focus(key, &mut self.key_buffer);
+
+        if Some(new_area).is_some() {
+            self.key_buffer = None;
+
+            self.focus_area = new_area;
+        };
+    }
+
+    pub fn handle_key(&mut self, key: KeyEvent) {
+        // let is_processed = self.process_key(&mut self, key)
+        //     || self.inner_tabs.process_key(&mut self, key)
+        //     || self.outher_tabs.process_key(&mut self, key)
+        //     || self.method_block.process_key(&mut self, key);
+        //
+        // if is_processed {
+        //     clear_buffer();
+        // } else {
+        //     set_buffer(key.code);
+        // }
     }
 }

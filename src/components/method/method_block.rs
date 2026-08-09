@@ -2,30 +2,28 @@ use ratatui::{
     Frame,
     layout::{Alignment, Rect},
     style::{Color, Style},
-    widgets::{Block, BorderType, Borders, Clear, List, ListItem, ListState, Paragraph},
+    widgets::{
+        Block,
+        BorderType::{self, Rounded},
+        Borders, Clear, List, ListItem, ListState, Paragraph,
+    },
 };
+use strum::{EnumCount, IntoEnumIterator};
 
-use crate::components::{
-    EditableComponent,
-    method::{HTTP_METHOD, HTTP_METHOD_LEN, HttpMethod},
-};
+use crate::components::{EditableComponent, method::HttpMethod};
 
 pub struct MethodBlock {
     pub method: HttpMethod,
-    pub is_editing: bool,
 }
 
 impl MethodBlock {
     pub fn new() -> Self {
         Self {
-            method: HttpMethod::Get,
-            is_editing: false,
+            method: HttpMethod::default(),
         }
     }
 
     pub fn draw(&self, frame: &mut Frame, area: Rect) {
-        let border_color = self.border_color();
-
         let value = self.method.to_string();
 
         let text_width = value.len();
@@ -41,7 +39,7 @@ impl MethodBlock {
 
         let block = Block::default()
             .borders(Borders::ALL)
-            .border_style(Style::default().fg(border_color))
+            .border_style(Style::default().fg(self.border_color()))
             .border_type(BorderType::Rounded);
 
         let paragraph = Paragraph::new(padded)
@@ -55,11 +53,12 @@ impl MethodBlock {
         let area = frame.area();
 
         let list_width = 25;
-        let list_height = HTTP_METHOD_LEN as u16 + 2;
+        let list_height = HttpMethod::COUNT as u16 + 2;
+        let debug_factor = if is_debug_mode { 2 } else { 1 };
 
         let list_area = Rect::new(
-            area.x + (area.width - list_width) / 2,
-            area.y + (area.height - list_height) / 2,
+            (area.width - list_width) / (2 * debug_factor),
+            (area.height - list_height) / 2,
             list_width,
             list_height,
         );
@@ -69,22 +68,27 @@ impl MethodBlock {
         let block = Block::default()
             .borders(Borders::ALL)
             .title(" Select HTTP Method ")
-            .style(Style::default().bg(Color::DarkGray));
+            .title_alignment(Alignment::Center)
+            .style(Style::default().bg(Color::Reset))
+            .border_type(Rounded);
+
         frame.render_widget(block.clone(), list_area);
 
         let inner_area = block.inner(list_area);
 
-        let items: Vec<ListItem> = HTTP_METHOD
-            .iter()
+        let items: Vec<ListItem> = HttpMethod::iter()
             .map(|method| {
-                ListItem::new(format!("  {}", method)).style(Style::default().bg(Color::Black))
+                ListItem::new(format!("  {}", method)).style(Style::default().bg(Color::Reset))
             })
             .collect();
 
         let list = List::new(items)
-            .highlight_style(Style::default().bg(Color::Gray).fg(Color::Black))
-            .highlight_symbol("> ");
+            .highlight_style(Style::default().bg(Color::DarkGray).fg(Color::Black))
+            .highlight_symbol(" ▶ ");
 
-        frame.render_stateful_widget(list, inner_area, &mut ListState::default());
+        let mut state = ListState::default();
+        state.select(Some(self.method.to_index()));
+
+        frame.render_stateful_widget(list, inner_area, &mut state);
     }
 }

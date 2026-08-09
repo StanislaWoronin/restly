@@ -3,24 +3,15 @@ use ratatui::{
     layout::{Alignment, Rect},
     style::{Color, Style},
     text::{Line, Span},
-    widgets::{Block, Borders},
+    widgets::{Block, BorderType::Rounded, Borders},
 };
-use strum::Display;
 
-use crate::components::{EditableComponent, RequestTab};
-
-#[derive(Clone, Copy, Display)]
-pub enum InnerTab {
-    Request,
-    Response,
-}
+use crate::components::{EditableComponent, InnerTab, RequestTab};
 
 pub const INNER_TAB: [InnerTab; 2] = [InnerTab::Request, InnerTab::Response];
 
-pub const INNER_TAB_LEN: usize = INNER_TAB.len();
-
 pub struct InnerTabs {
-    pub active_tab: usize,
+    pub active_tab: InnerTab,
     pub is_focused: bool,
     pub is_editing: bool,
     pub request_tab: RequestTab,
@@ -29,17 +20,10 @@ pub struct InnerTabs {
 impl InnerTabs {
     pub fn new() -> Self {
         Self {
-            active_tab: 0,
+            active_tab: InnerTab::Request,
             is_focused: false,
             is_editing: false,
             request_tab: RequestTab::new(),
-        }
-    }
-
-    pub fn get_tab_name(&self) -> InnerTab {
-        match INNER_TAB.get(self.active_tab) {
-            Some(&tab) => tab,
-            None => InnerTab::Request,
         }
     }
 
@@ -53,10 +37,9 @@ impl InnerTabs {
                 title_spans.push(Span::styled(" │ ", Style::default().fg(Color::DarkGray)));
             }
 
-            let is_active = i == self.active_tab;
             title_spans.push(Span::styled(
                 tab.to_string(),
-                if is_active {
+                if *tab == self.active_tab {
                     Style::default().fg(Color::Yellow).bold()
                 } else {
                     Style::default().fg(Color::DarkGray)
@@ -69,7 +52,7 @@ impl InnerTabs {
         let block = Block::default()
             .borders(Borders::ALL)
             .border_style(Style::default().fg(border_color))
-            .border_type(ratatui::widgets::BorderType::Rounded)
+            .border_type(Rounded)
             .title(Line::from(title_spans))
             .title_alignment(Alignment::Left);
 

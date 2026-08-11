@@ -1,55 +1,90 @@
-use crossterm::event::{KeyCode, KeyEvent};
+use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 
-use crate::{App, FocusArea, key_handler::KeyHandler};
+use crate::{
+    App,
+    FocusArea::{self},
+    app::log::{LogLevel, get_logger},
+    debug_log,
+    key_handler::KeyHandler,
+};
 
 impl KeyHandler for App {
     fn get_component_name(&self) -> crate::FocusArea {
         FocusArea::App
     }
 
-    fn set_focus(&self, key: KeyEvent, buffer: &mut KeyCode) -> Option<FocusArea> {
-        if let Some(area) = self.inner_tabs.set_focus(key, buffer) {
-            return Some(area);
+    fn set_focus(&mut self, key: KeyEvent) -> bool {
+        match (key.code, self.key_buffer) {
+            (KeyCode::Char('p'), Some(KeyCode::Char(' '))) => {
+                self.focus_area = FocusArea::Request;
+                true
+            }
+            (KeyCode::Char('r'), Some(KeyCode::Char(' '))) => {
+                self.focus_area = FocusArea::Response;
+                true
+            }
+            (KeyCode::Char('m'), Some(KeyCode::Char(' '))) => {
+                if self.focus_area == FocusArea::Method {
+                    self.focus_area = FocusArea::default();
+                } else {
+                    self.focus_area = FocusArea::Method;
+                }
+                true
+            }
+            _ => false,
         }
-
-        if let Some(area) = self.method_block.set_focus(key, buffer) {
-            return Some(area);
-        }
-
-        if let Some(area) = self.outher_tabs.set_focus(key, buffer) {
-            return Some(area);
-        }
-
-        Some(self.focus_area)
     }
 
-    // fn set_quit(&mut self) -> bool {
-    //     self.should_quit = true;
-    //
-    //     true
-    // }
-    //
-    // fn change_debug_mod(&mut self, key: KeyEvent) -> bool {
-    //     if key.code == KeyCode::F(12) {
-    //         self.debug_mod = !self.debug_mod;
-    //
-    //         if let Ok(mut logger) = get_logger().lock() {
-    //             logger.toggle();
-    //         }
-    //
-    //         true
-    //     } else {
-    //         false
-    //     }
-    // }
-    //
-    // fn close_key(&mut self, key: KeyEvent) -> bool {
-    //     if key.code == KeyCode::Char('c') && key.modifiers.contains(KeyModifiers::CONTROL) {
-    //         self.should_quit = true;
-    //
-    //         true
-    //     } else {
-    //         false
-    //     }
-    // }
+    fn process_key(&mut self, key: KeyEvent) -> bool {
+        let is_processed = self.set_focus(key);
+
+        if is_processed {
+            debug_log!(LogLevel::Debug, "Focus changed on: {}", self.focus_area);
+            return false;
+        }
+
+        let is_processed = match (key.code, key.modifiers) {
+            (KeyCode::Char('c'), KeyModifiers::CONTROL) => {
+                self.should_quit = true;
+                true
+            }
+            (KeyCode::F(12), _) => {
+                self.debug_mod = !self.debug_mod;
+                if let Ok(mut logger) = get_logger().lock() {
+                    logger.toggle();
+                }
+                true
+            }
+            _ => false,
+        };
+
+        if is_processed {
+            return false;
+        }
+
+        let is_processed = match self.focus_area {
+            FocusArea::Method => self.method_block.process_key(key),
+            _ => false,
+        };
+
+        if is_processed {
+            let mut log_msg = format!("Key: {}", key.code);
+
+            if !key.modifiers.is_empty() {
+                log_msg.push_str(&format!(", with modifier: {}", key.modifiers));
+            }
+
+            if let Some(buffer) = self.key_buffer {
+                log_msg.push_str(&format!(" and buffer: {}", buffer));
+            }
+
+            log_msg.push_str(&format!(" processed for {}", self.focus_area));
+
+            debug_log!(LogLevel::Debug, "{}", log_msg);
+            self.key_buffer = None;
+        } else {
+            self.key_buffer = Some(key.code);
+        }
+        is_processed
+    }
 }

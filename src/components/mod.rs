@@ -1,12 +1,10 @@
 pub mod editable_component;
 
-pub mod inner_tab;
 pub mod method;
-pub mod outher_tab;
+pub mod page;
+pub mod tab;
 pub mod url;
 
 pub use editable_component::EditableComponent;
-pub use inner_tab::{RequestTab, tabs_block::InnerTab, tabs_block::InnerTabs};
 pub use method::method_block::MethodBlock;
-pub use outher_tab::tabs_block::{OutherTab, OutherTabs};
 pub use url::url_block::UrlBlock;

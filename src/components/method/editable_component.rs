@@ -2,11 +2,11 @@ use crate::components::{EditableComponent, MethodBlock};
 
 impl EditableComponent for MethodBlock {
     fn is_focused(&self) -> bool {
-        self.is_editing
+        false
     }
 
     fn is_editing(&self) -> bool {
-        self.is_editing
+        true
     }
 
     fn content(&self) -> String {

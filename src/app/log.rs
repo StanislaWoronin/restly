@@ -72,6 +72,7 @@ impl DebugLogger {
     pub fn toggle(&mut self) {
         if self.enabled {
             self.disable();
+            self.clear();
         } else {
             self.enable();
         }
@@ -142,9 +143,9 @@ impl DebugLogger {
         frame.render_widget(paragraph, area);
     }
 
-    // pub fn clear(&mut self) {
-    //     self.logs.clear();
-    // }
+    pub fn clear(&mut self) {
+        self.logs.clear();
+    }
 }
 
 static DEBUG_LOGGER: Lazy<Mutex<DebugLogger>> = Lazy::new(|| Mutex::new(DebugLogger::new()));

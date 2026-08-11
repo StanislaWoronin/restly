@@ -1,19 +1,22 @@
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout, Rect},
+    style::Color,
 };
 
 use crate::{
-    App,
-    app::log::get_logger,
-    components::{EditableComponent, OutherTab},
+    App, FocusArea,
+    app::{application::FocusPage, log::get_logger},
+    components::{
+        EditableComponent, page::page_block::draw_page_block, tab::tabs_block::draw_tab_block,
+    },
 };
 
 pub fn ui(frame: &mut Frame, app: &mut App) {
-    if app.outher_tabs.get_active_tab_name() == OutherTab::Request {
+    if app.focus_page == FocusPage::Request {
         draw_request_page(app, frame);
 
-        if app.method_block.is_editing {
+        if app.focus_area == FocusArea::Method {
             app.method_block.draw_popup(frame, app.debug_mod);
         };
     }
@@ -44,7 +47,7 @@ fn draw_request_page(app: &App, frame: &mut Frame) {
 
     let outer_area = calc_area(frame.area(), is_debug_mod);
 
-    app.outher_tabs.draw(frame, outer_area);
+    draw_page_block(frame, outer_area, Color::DarkGray, app.focus_page);
 
     if is_debug_mod {
         let debug_area = calc_debug_area(outer_area);
@@ -52,12 +55,11 @@ fn draw_request_page(app: &App, frame: &mut Frame) {
         if let Ok(logger) = get_logger().lock() {
             logger.draw(frame, debug_area);
         }
-        // render_debug_panel(frame, debug_area);
     }
 
     let content_area = calc_area(outer_area, false);
 
-    let [top_area, inner_area] = Layout::default()
+    let [top_area, tab_area] = Layout::default()
         .direction(Direction::Vertical)
         .constraints([Constraint::Length(3), Constraint::Min(0)])
         .split(content_area)
@@ -75,5 +77,6 @@ fn draw_request_page(app: &App, frame: &mut Frame) {
 
     app.method_block.draw(frame, method_area);
     app.url_block.draw(frame, url_area);
-    app.inner_tabs.draw(frame, inner_area);
+
+    draw_tab_block(frame, tab_area, Color::DarkGray, app);
 }

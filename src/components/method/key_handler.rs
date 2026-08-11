@@ -1,27 +1,23 @@
 use crossterm::event::{KeyCode, KeyEvent};
 
-use crate::{
-    FocusArea, app::key_buffer::get_buffer, components::MethodBlock, debug_log,
-    key_handler::KeyHandler,
-};
+use crate::{FocusArea, components::MethodBlock, key_handler::KeyHandler};
 
 impl KeyHandler for MethodBlock {
-    fn is_focused(&self, _area: FocusArea) -> bool {
-        self.is_editing
+    fn get_component_name(&self) -> FocusArea {
+        FocusArea::Method
     }
 
-    fn set_visiable(&mut self, key: KeyEvent) -> bool {
-        let is_processed =
-            if get_buffer() == Some(KeyCode::Char(' ')) && key.code == KeyCode::Char('m') {
-                self.is_editing = !self.is_editing;
-
+    fn process_key(&mut self, key: KeyEvent) -> bool {
+        match key.code {
+            KeyCode::Tab | KeyCode::Down | KeyCode::Char('k') => {
+                self.method = self.method.next();
                 true
-            } else {
-                false
-            };
-
-        debug_log!("Process 'set_visiable': {is_processed}");
-
-        is_processed
+            }
+            KeyCode::BackTab | KeyCode::Up | KeyCode::Char('j') => {
+                self.method = self.method.previos();
+                true
+            }
+            _ => false,
+        }
     }
 }

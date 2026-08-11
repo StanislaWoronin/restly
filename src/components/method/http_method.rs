@@ -1,6 +1,6 @@
-use strum::Display;
+use strum::{Display, EnumCount, EnumIter};
 
-#[derive(Debug, Clone, Display)]
+#[derive(Debug, Clone, Copy, EnumIter, EnumCount, Display)]
 pub enum HttpMethod {
     Delete,
     Get,
@@ -9,12 +9,40 @@ pub enum HttpMethod {
     Put,
 }
 
-pub const HTTP_METHOD: [HttpMethod; 5] = [
-    HttpMethod::Delete,
-    HttpMethod::Get,
-    HttpMethod::Patch,
-    HttpMethod::Post,
-    HttpMethod::Put,
-];
+impl HttpMethod {
+    pub fn to_index(&self) -> usize {
+        match self {
+            HttpMethod::Delete => 0,
+            HttpMethod::Get => 1,
+            HttpMethod::Patch => 2,
+            HttpMethod::Post => 3,
+            HttpMethod::Put => 4,
+        }
+    }
 
-pub const HTTP_METHOD_LEN: usize = HTTP_METHOD.len();
+    pub fn next(&self) -> HttpMethod {
+        match self {
+            HttpMethod::Delete => HttpMethod::Get,
+            HttpMethod::Get => HttpMethod::Patch,
+            HttpMethod::Patch => HttpMethod::Post,
+            HttpMethod::Post => HttpMethod::Put,
+            HttpMethod::Put => HttpMethod::Delete,
+        }
+    }
+
+    pub fn previos(&self) -> HttpMethod {
+        match self {
+            HttpMethod::Delete => HttpMethod::Put,
+            HttpMethod::Get => HttpMethod::Delete,
+            HttpMethod::Patch => HttpMethod::Get,
+            HttpMethod::Post => HttpMethod::Patch,
+            HttpMethod::Put => HttpMethod::Post,
+        }
+    }
+}
+
+impl Default for HttpMethod {
+    fn default() -> HttpMethod {
+        HttpMethod::Get
+    }
+}

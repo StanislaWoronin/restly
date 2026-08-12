@@ -1,6 +1,7 @@
+use serde::Deserialize;
 use strum::{Display, EnumCount, EnumIter};
 
-#[derive(Debug, Clone, Copy, EnumIter, EnumCount, Display)]
+#[derive(Debug, Clone, Copy, EnumIter, EnumCount, Display, Deserialize)]
 pub enum HttpMethod {
     Delete,
     Get,

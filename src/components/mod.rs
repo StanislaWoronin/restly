@@ -3,6 +3,7 @@ pub mod editable_component;
 pub mod method;
 pub mod page;
 pub mod tab;
+pub mod tree;
 pub mod url;
 
 pub use editable_component::EditableComponent;

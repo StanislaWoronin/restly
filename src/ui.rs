@@ -45,19 +45,37 @@ fn calc_debug_area(area: Rect) -> Rect {
 fn draw_request_page(app: &App, frame: &mut Frame) {
     let is_debug_mod = app.debug_mod;
 
-    let outer_area = calc_area(frame.area(), is_debug_mod);
+    let page_area = calc_area(frame.area(), is_debug_mod);
 
-    draw_page_block(frame, outer_area, Color::DarkGray, app.focus_page);
+    draw_page_block(frame, page_area, Color::DarkGray, app.focus_page);
 
     if is_debug_mod {
-        let debug_area = calc_debug_area(outer_area);
+        let debug_area = calc_debug_area(page_area);
 
         if let Ok(logger) = get_logger().lock() {
             logger.draw(frame, debug_area);
         }
     }
 
-    let content_area = calc_area(outer_area, false);
+    let mut content_area = calc_area(page_area, false);
+
+    let is_tree_visiable = app.tree_block.is_visiable;
+
+    if is_tree_visiable {
+        let [tree_area, new_content_area] = Layout::default()
+            .direction(Direction::Horizontal)
+            .constraints([Constraint::Percentage(20), Constraint::Min(0)])
+            .split(content_area)
+            .as_ref()
+            .try_into()
+            .unwrap();
+
+        app.tree_block.draw(frame, tree_area);
+
+        content_area = new_content_area;
+        content_area.x += 1;
+        content_area.width -= 1;
+    }
 
     let [top_area, tab_area] = Layout::default()
         .direction(Direction::Vertical)

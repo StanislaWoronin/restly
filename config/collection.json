@@ -1,0 +1,24 @@
+{
+  "info": {
+    "name": "Test API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get all users",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "https://api.example.com/users",
+              "path": ["users"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

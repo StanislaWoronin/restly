@@ -31,6 +31,13 @@ impl KeyHandler for App {
                 }
                 true
             }
+            (KeyCode::Char('e'), Some(KeyCode::Char(' '))) => {
+                self.tree_block.is_visiable = !self.tree_block.is_visiable;
+                if self.tree_block.is_visiable {
+                    self.focus_area = FocusArea::Tree;
+                }
+                true
+            }
             _ => false,
         }
     }
@@ -55,10 +62,16 @@ impl KeyHandler for App {
                 }
                 true
             }
+            (KeyCode::Char('L'), KeyModifiers::SHIFT) => {
+                debug_log!("Load collection");
+                let _ = self.tree_block.load_collection();
+                true
+            }
             _ => false,
         };
 
         if is_processed {
+            debug_log!("Global key pricessed");
             return false;
         }
 
@@ -85,6 +98,7 @@ impl KeyHandler for App {
         } else {
             self.key_buffer = Some(key.code);
         }
+
         is_processed
     }
 }

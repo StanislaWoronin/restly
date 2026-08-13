@@ -2,7 +2,7 @@ use crate::components::{EditableComponent, tree::tree_block::TreeBlock};
 
 impl EditableComponent for TreeBlock {
     fn is_focused(&self) -> bool {
-        self.is_visiable
+        self.is_visible
     }
 
     fn is_editing(&self) -> bool {

@@ -32,8 +32,8 @@ impl KeyHandler for App {
                 true
             }
             (KeyCode::Char('e'), Some(KeyCode::Char(' '))) => {
-                self.tree_block.is_visiable = !self.tree_block.is_visiable;
-                if self.tree_block.is_visiable {
+                self.tree_block.is_visible = !self.tree_block.is_visible;
+                if self.tree_block.is_visible {
                     self.focus_area = FocusArea::Tree;
                 }
                 true

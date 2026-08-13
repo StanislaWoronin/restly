@@ -59,7 +59,7 @@ fn draw_request_page(app: &App, frame: &mut Frame) {
 
     let mut content_area = calc_area(page_area, false);
 
-    let is_tree_visiable = app.tree_block.is_visiable;
+    let is_tree_visiable = app.tree_block.is_visible;
 
     if is_tree_visiable {
         let [tree_area, new_content_area] = Layout::default()

@@ -1,34 +1,27 @@
 use std::io::Stdout;
 
-use color_eyre::eyre::WrapErr;
 use crossterm::event::{self, Event, KeyEventKind};
 use ratatui::{Terminal, backend::CrosstermBackend};
 
 mod app;
 mod components;
+mod errors;
 pub mod key_handler;
 mod tui;
 mod ui;
 
 pub use app::application::{App, FocusArea};
 
-use crate::key_handler::KeyHandler;
+use crate::{key_handler::KeyHandler, tui::TerminalGuard};
 
 fn main() -> color_eyre::Result<()> {
+    let _quard = TerminalGuard;
+
     color_eyre::install()?;
-
     let mut terminal = tui::init()?;
-    let mut app = App::new();
 
-    let result = run(&mut terminal, &mut app).wrap_err("run failed");
-
-    if let Err(err) = tui::restore() {
-        eprintln!(
-            "Failed to restore terminal. Run `reset` or restart your terminal to recover: {err}"
-        );
-    }
-
-    result
+    let mut app = App::new()?;
+    run(&mut terminal, &mut app)
 }
 
 fn run(terminal: &mut Terminal<CrosstermBackend<Stdout>>, app: &mut App) -> color_eyre::Result<()> {

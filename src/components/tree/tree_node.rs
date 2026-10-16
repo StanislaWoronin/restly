@@ -2,6 +2,8 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
+use crate::{app::log::LogLevel, debug_log, errors::AppResult};
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RawCollection {
     pub info: RawInfo,
@@ -260,10 +262,14 @@ impl Collection {
         }
     }
 
-    pub fn from_file(path: &str) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn from_file(path: &str) -> AppResult<Self> {
         let content = std::fs::read_to_string(path)?;
         let raw: RawCollection = serde_json::from_str(&content)?;
-        Ok(raw.into())
+
+        let collection: Collection = raw.into();
+        debug_log!(LogLevel::Debug, "{:?}", collection);
+
+        Ok(collection)
     }
 
     pub fn save_to_file(&self, path: &str, name: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -271,27 +277,6 @@ impl Collection {
         let json = serde_json::to_string_pretty(&raw)?;
         std::fs::write(path, json)?;
         Ok(())
-    }
-
-    pub fn flatten(&self) -> Vec<(String, &Item)> {
-        let mut result = Vec::new();
-        for (name, item) in &self.item {
-            result.push((name.clone(), item));
-            if let Item::Folder(folder) = item {
-                for (sub_name, sub_item) in folder.flatten() {
-                    result.push((format!("{} / {}", name, sub_name), sub_item));
-                }
-            }
-        }
-        result
-    }
-
-    pub fn search(&self, query: &str) -> Vec<(String, &Item)> {
-        let query = query.to_lowercase();
-        self.flatten()
-            .into_iter()
-            .filter(|(name, _)| name.to_lowercase().contains(&query))
-            .collect()
     }
 }
 
@@ -301,27 +286,6 @@ impl Folder {
             item: HashMap::new(),
             is_visible: false,
         }
-    }
-
-    pub fn get_item(&self, name: &str) -> Option<&Item> {
-        self.item.get(name)
-    }
-
-    pub fn add_item(&mut self, name: String, item: Item) {
-        self.item.insert(name, item);
-    }
-
-    pub fn flatten(&self) -> Vec<(String, &Item)> {
-        let mut result = Vec::new();
-        for (name, item) in &self.item {
-            result.push((name.clone(), item));
-            if let Item::Folder(folder) = item {
-                for (sub_name, sub_item) in folder.flatten() {
-                    result.push((format!("{} / {}", name, sub_name), sub_item));
-                }
-            }
-        }
-        result
     }
 }
 
@@ -383,224 +347,5 @@ impl TreeNode {
             expanded: false,
             data: None,
         }
-    }
-
-    pub fn with_data(
-        label: String,
-        kind: NodeKind,
-        parent_path: &[String],
-        data: NodeData,
-    ) -> Self {
-        let mut node = Self::new(label, kind, parent_path);
-        node.data = Some(data);
-        node
-    }
-
-    pub fn id(&self) -> String {
-        self.path.join("/")
-    }
-
-    pub fn add_child(&mut self, child: TreeNode) {
-        self.children.push(child);
-    }
-
-    pub fn toggle(&mut self) {
-        self.expanded = !self.expanded;
-    }
-
-    pub fn expand(&mut self) {
-        self.expanded = true;
-    }
-
-    pub fn collapse(&mut self) {
-        self.expanded = false;
-    }
-
-    pub fn is_expanded(&self) -> bool {
-        self.expanded
-    }
-
-    pub fn sort_children(&mut self) {
-        self.children.sort_by(|a, b| {
-            let kind_order = a.kind.cmp(&b.kind);
-            if kind_order != std::cmp::Ordering::Equal {
-                return kind_order;
-            }
-            a.label.to_lowercase().cmp(&b.label.to_lowercase())
-        });
-
-        for child in &mut self.children {
-            child.sort_children();
-        }
-    }
-
-    pub fn find_by_path(&self, path: &[String]) -> Option<&TreeNode> {
-        if self.path == path {
-            return Some(self);
-        }
-
-        for child in &self.children {
-            if let Some(found) = child.find_by_path(path) {
-                return Some(found);
-            }
-        }
-        None
-    }
-
-    pub fn find_by_path_mut(&mut self, path: &[String]) -> Option<&mut TreeNode> {
-        if self.path == path {
-            return Some(self);
-        }
-
-        for child in &mut self.children {
-            if let Some(found) = child.find_by_path_mut(path) {
-                return Some(found);
-            }
-        }
-        None
-    }
-
-    pub fn get_visible_nodes(&self) -> Vec<&TreeNode> {
-        let mut nodes = Vec::new();
-        self.collect_visible_nodes(&mut nodes);
-        nodes
-    }
-
-    fn collect_visible_nodes<'a>(&'a self, nodes: &mut Vec<&'a TreeNode>) {
-        nodes.push(self);
-        if self.expanded {
-            for child in &self.children {
-                child.collect_visible_nodes(nodes);
-            }
-        }
-    }
-
-    pub fn get_visible_index(&self) -> Option<usize> {
-        None
-    }
-
-    pub fn format_visible(&self, indent: usize, selected_path: Option<&[String]>) -> String {
-        let indent_str = "  ".repeat(indent);
-        let expand_symbol = if self.expanded { "▼" } else { "▶" };
-        let is_selected = selected_path == Some(&self.path);
-        let prefix = if is_selected { "▶ " } else { "  " };
-
-        let mut result = format!("{}{}{} {}\n", prefix, indent_str, expand_symbol, self.label);
-
-        if self.expanded {
-            for child in &self.children {
-                result.push_str(&child.format_visible(indent + 1, selected_path));
-            }
-        }
-
-        result
-    }
-}
-
-pub struct TreeBuilder {
-    pub root: TreeNode,
-}
-
-impl TreeBuilder {
-    pub fn new() -> Self {
-        Self {
-            root: TreeNode::new("Collection".to_string(), NodeKind::Collection, &[]),
-        }
-    }
-
-    pub fn build_from_collections(&mut self, collections: &HashMap<String, Collection>) {
-        let mut root_node = TreeNode::new("Collection".to_string(), NodeKind::Collection, &[]);
-        root_node.expanded = true;
-
-        for (name, collection) in collections {
-            let collection_node = self.build_collection_node(name, collection, &[]);
-            root_node.add_child(collection_node);
-        }
-
-        root_node.sort_children();
-        self.root = root_node;
-    }
-
-    fn build_collection_node(
-        &self,
-        name: &str,
-        collection: &Collection,
-        parent_path: &[String],
-    ) -> TreeNode {
-        let mut node = TreeNode::with_data(
-            name.to_string(),
-            NodeKind::Collection,
-            parent_path,
-            NodeData::CollectionData {
-                name: name.to_string(),
-                is_visible: collection.is_visible,
-            },
-        );
-        node.expanded = true;
-
-        let mut path = parent_path.to_vec();
-        path.push(name.to_string());
-
-        for (item_name, item) in &collection.item {
-            let child_node = self.build_item_node(item_name, item, &path);
-            node.add_child(child_node);
-        }
-
-        node.sort_children();
-        node
-    }
-
-    fn build_item_node(&self, name: &str, item: &Item, parent_path: &[String]) -> TreeNode {
-        match item {
-            Item::Folder(folder) => self.build_folder_node(name, folder, parent_path),
-            Item::Request(request) => self.build_request_node(name, request, parent_path),
-        }
-    }
-
-    fn build_folder_node(&self, name: &str, folder: &Folder, parent_path: &[String]) -> TreeNode {
-        let mut node = TreeNode::with_data(
-            name.to_string(),
-            NodeKind::Folder,
-            parent_path,
-            NodeData::FolderData {
-                is_visible: folder.is_visible,
-            },
-        );
-        node.expanded = false;
-
-        let mut path = parent_path.to_vec();
-        path.push(name.to_string());
-
-        for (item_name, item) in &folder.item {
-            let child_node = self.build_item_node(item_name, item, &path);
-            node.add_child(child_node);
-        }
-
-        node.sort_children();
-        node
-    }
-
-    fn build_request_node(
-        &self,
-        name: &str,
-        request: &RequestItem,
-        parent_path: &[String],
-    ) -> TreeNode {
-        let full_url = request.get_full_url();
-        let method = request.request.method.clone();
-        let label = format!("{} {}", method, name);
-
-        TreeNode::with_data(
-            label,
-            NodeKind::Request,
-            parent_path,
-            NodeData::RequestData {
-                name: request.name.clone(),
-                method: request.request.method.clone(),
-                url: full_url,
-                headers: request.request.header.clone(),
-                body: request.request.body.clone(),
-            },
-        )
     }
 }

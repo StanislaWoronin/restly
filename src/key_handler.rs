@@ -1,6 +1,6 @@
-use crossterm::event::KeyEvent;
-
 use crate::{FocusArea, debug_log};
+use color_eyre::Result;
+use crossterm::event::KeyEvent;
 
 pub enum Direction {
     Positive,
@@ -15,5 +15,5 @@ pub trait KeyHandler {
         false
     }
 
-    fn process_key(&mut self, key: KeyEvent) -> bool;
+    fn process_key(&mut self, key: KeyEvent) -> Result<bool, Box<dyn std::error::Error>>;
 }

@@ -1,10 +1,11 @@
 use crossterm::event::KeyCode;
 use strum::{Display, EnumIter};
 
-use crate::components::{
-    EditableComponent, MethodBlock, UrlBlock,
-    tab::request::request_tab::RequestTab,
-    tree::tree_block::{self, TreeBlock},
+use crate::{
+    components::{
+        MethodBlock, UrlBlock, tab::request::request_tab::RequestTab, tree::tree_block::TreeBlock,
+    },
+    errors::AppResult,
 };
 
 #[derive(Clone, Copy, Debug, Display, EnumIter, PartialEq)]
@@ -51,11 +52,11 @@ pub struct App {
 }
 
 impl App {
-    pub fn new() -> Self {
+    pub fn new() -> AppResult<Self> {
         let mut tree_block = TreeBlock::new();
-        tree_block.load_collection();
+        tree_block.load_collection()?;
 
-        Self {
+        Ok(Self {
             focus_page: FocusPage::default(),
             focus_area: FocusArea::default(),
             tree_block,
@@ -65,6 +66,6 @@ impl App {
             should_quit: false,
             debug_mod: false,
             key_buffer: None,
-        }
+        })
     }
 }

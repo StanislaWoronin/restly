@@ -42,12 +42,26 @@ impl KeyHandler for App {
         }
     }
 
-    fn process_key(&mut self, key: KeyEvent) -> bool {
+    fn process_key(&mut self, key: KeyEvent) -> Result<bool, Box<dyn std::error::Error>> {
+        let mut log_msg = format!("Key: {}", key.code);
+
+        if !key.modifiers.is_empty() {
+            log_msg.push_str(&format!(", with modifier: {}", key.modifiers));
+        }
+
+        if let Some(buffer) = self.key_buffer {
+            log_msg.push_str(&format!(" and buffer: {}", buffer));
+        }
+
+        log_msg.push_str(&format!(" processed for {}", self.focus_area));
+
+        debug_log!(LogLevel::Debug, "{}", log_msg);
+
         let is_processed = self.set_focus(key);
 
         if is_processed {
             debug_log!(LogLevel::Debug, "Focus changed on: {}", self.focus_area);
-            return false;
+            return Ok(false);
         }
 
         let is_processed = match (key.code, key.modifiers) {
@@ -64,41 +78,28 @@ impl KeyHandler for App {
             }
             (KeyCode::Char('L'), KeyModifiers::SHIFT) => {
                 debug_log!("Load collection");
-                let _ = self.tree_block.load_collection();
+                let _ = self.tree_block.load_collection()?;
                 true
             }
             _ => false,
         };
 
         if is_processed {
-            debug_log!("Global key pricessed");
-            return false;
+            debug_log!("Global key processed");
+            return Ok(false);
         }
 
         let is_processed = match self.focus_area {
-            FocusArea::Method => self.method_block.process_key(key),
+            FocusArea::Method => self.method_block.process_key(key)?,
             _ => false,
         };
 
         if is_processed {
-            let mut log_msg = format!("Key: {}", key.code);
-
-            if !key.modifiers.is_empty() {
-                log_msg.push_str(&format!(", with modifier: {}", key.modifiers));
-            }
-
-            if let Some(buffer) = self.key_buffer {
-                log_msg.push_str(&format!(" and buffer: {}", buffer));
-            }
-
-            log_msg.push_str(&format!(" processed for {}", self.focus_area));
-
-            debug_log!(LogLevel::Debug, "{}", log_msg);
             self.key_buffer = None;
         } else {
             self.key_buffer = Some(key.code);
         }
 
-        is_processed
+        Ok(is_processed)
     }
 }

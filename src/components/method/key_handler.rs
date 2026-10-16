@@ -7,17 +7,17 @@ impl KeyHandler for MethodBlock {
         FocusArea::Method
     }
 
-    fn process_key(&mut self, key: KeyEvent) -> bool {
+    fn process_key(&mut self, key: KeyEvent) -> Result<bool, Box<dyn std::error::Error>> {
         match key.code {
             KeyCode::Tab | KeyCode::Down | KeyCode::Char('k') => {
                 self.method = self.method.next();
-                true
+                Ok(true)
             }
             KeyCode::BackTab | KeyCode::Up | KeyCode::Char('j') => {
                 self.method = self.method.previos();
-                true
+                Ok(true)
             }
-            _ => false,
+            _ => Ok(false),
         }
     }
 }

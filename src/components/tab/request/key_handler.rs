@@ -9,7 +9,7 @@ impl KeyHandler for RequestTab {
         FocusArea::Request
     }
 
-    fn process_key(&mut self, _key: KeyEvent) -> bool {
-        false
+    fn process_key(&mut self, _key: KeyEvent) -> Result<bool, Box<dyn std::error::Error>> {
+        Ok(false)
     }
 }

@@ -9,6 +9,18 @@ use ratatui::{
     },
 };
 
+pub struct TerminalGuard;
+
+impl Drop for TerminalGuard {
+    fn drop(&mut self) {
+        if let Err(err) = restore() {
+            eprintln!(
+                "Failed to restore terminal. Run `reset` or restart your terminal to recover: {err}"
+            );
+        }
+    }
+}
+
 pub fn init() -> io::Result<ratatui::Terminal<CrosstermBackend<Stdout>>> {
     execute!(stdout(), EnterAlternateScreen)?;
     enable_raw_mode()?;
@@ -25,7 +37,7 @@ fn set_panic_hook() {
 }
 
 pub fn restore() -> io::Result<()> {
-    execute!(stdout(), LeaveAlternateScreen)?;
     disable_raw_mode()?;
+    execute!(stdout(), LeaveAlternateScreen, crossterm::cursor::Show,)?;
     Ok(())
 }

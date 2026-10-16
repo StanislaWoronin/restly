@@ -154,6 +154,28 @@ pub fn get_logger() -> &'static Mutex<DebugLogger> {
     &DEBUG_LOGGER
 }
 
+/// Logs a message through the application's shared logger.
+///
+/// The macro has two forms:
+///
+/// 1. **With an explicit log level:**
+///    ```rust
+///    debug_log!(LogLevel::Info, "User {} logged in", user_id);
+///    ```
+///
+/// 2. **Without a level — defaults to `LogLevel::Debug`:**
+///    ```rust
+///    debug_log!("Just a debug message: {}", value);
+///    ```
+///
+/// # Examples
+///
+/// ```rust
+/// use crate::app::log::LogLevel;
+///
+/// debug_log!("Hello, {}", name);
+/// debug_log!(LogLevel::Warn, "Something odd: {:?}", data);
+/// ```
 #[macro_export]
 macro_rules! debug_log {
     ($level:expr, $($arg:tt)+) => {{

@@ -78,7 +78,7 @@ impl KeyHandler for App {
             }
             (KeyCode::Char('L'), KeyModifiers::SHIFT) => {
                 debug_log!("Load collection");
-                let _ = self.tree_block.load_collection()?;
+                let _ = self.tree_block.load_collections()?;
                 true
             }
             _ => false,

@@ -1,0 +1,211 @@
+{
+  "info": {
+    "_postman_id": "158b9c84-781f-4866-a61f-c5e62fa2c585",
+    "name": "My Collection1",
+    "description": "### Welcome to Postman! This is your first collection. \n\nCollections are your starting point for building and testing APIs. You can use this one to:\n\n• Group related requests\n• Test your API in real-world scenarios\n• Document and share your requests\n\nUpdate the name and overview whenever you’re ready to make it yours.\n\n[Learn more about Postman Collections.](https://learning.postman.com/docs/collections/collections-overview/)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "48081409",
+    "_collection_link": "https://go.postman.co/collection/48081409-158b9c84-781f-4866-a61f-c5e62fa2c585?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "APN63",
+      "item": [
+        {
+          "name": "event_effectivity_mapping/search_modification",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRGF0YSI6eyJ1c2VyIjp7ImlkIjoiNTU1ZWJiMTctOWI4Ni00YTNjLTk4NzUtZTIzY2U0NmIzOGY1IiwicHJvdmlkZXIiOiJsb2NhbCIsInJvbGVzIjpbImt1cG9sX3VzZXIiLCJrdXBvbF9hZG1pbiJdLCJmdWxsTmFtZSI6Ikt1cG9sIEFkbWluIiwiZXh0ZXJuYWxJZCI6IjU1NWViYjE3LTliODYtNGEzYy05ODc1LWUyM2NlNDZiMzhmNSJ9LCJjb21wYW55Ijp7InJvbGVzIjpbXX19LCJkYXRlIjoiMjAyNS0xMS0xN1QwNjo0NTo1Mi4zNTFaIiwiaWF0IjoxNzYzMzYxOTUyLCJleHAiOjE3NjM0MjE5NTJ9.bwLHSx-Zk2KIERvWAHhF9wz6REzZumeuBSeOc4MpBqo",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"psn\": 395721,\r\n    \"openAndNotAssignedModsOnly\": true,\r\n    \"showWholeRotableTree\": true,\r\n    \"limit\": 25,\r\n    \"offset\": 25,\r\n    \"search\": {\r\n        \"orderBy\": []\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://kupol-dev.ecias.ru/api/event_tracking/entities/event_effectivity_mapping/search_modification",
+              "protocol": "https",
+              "host": ["kupol-dev", "ecias", "ru"],
+              "path": [
+                "api",
+                "event_tracking",
+                "entities",
+                "event_effectivity_mapping",
+                "search_modification"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "wo_transfer/search_edit_modifications",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n\t\"docNoI\": 31672,\r\n\t\"includeInactive\": false,\r\n\t\"isApplicable\": true,\r\n\t\"isHistory\": false,\r\n\t\"isPnChange\": true,\r\n\t\"limit\": 1000,\r\n\t\"offset\": 0,\r\n\t\"search\": {\r\n\t\t\"orderBy\": []\r\n\t}\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://kupol-dev.ecias.ru/api/event_tracking/entities/wo_transfer/search_edit_modifications",
+              "protocol": "https",
+              "host": ["kupol-dev", "ecias", "ru"],
+              "path": [
+                "api",
+                "event_tracking",
+                "entities",
+                "wo_transfer",
+                "search_edit_modifications"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "doc_replacement/update",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyRGF0YSI6eyJ1c2VyIjp7ImlkIjoiY2ZjY2ViZGYtNjNjMi00ODIyLThhMjYtOTY3N2Q1MGEzMzA1Iiwicm9sZXMiOlsia3Vwb2xfdXNlciIsImt1cG9sX2FkbWluIl0sImZ1bGxOYW1lIjoiS3Vwb2wgQWRtaW4iLCJwcm92aWRlciI6ImxvY2FsIiwiZXh0ZXJuYWxJZCI6IjU1NWViYjE3LTliODYtNGEzYy05ODc1LWUyM2NlNDZiMzhmNSJ9LCJjb21wYW55Ijp7InJvbGVzIjpbXX19LCJkYXRlIjoiMjAyNS0xMC0wMlQwNzoxODo0MC41NTFaIiwiaWF0IjoxNzU5Mzg5NTIwLCJleHAiOjE3NTk0NDk1MjB9.mG614bPDA9SY5wObYEywRrh2JMSEnk2Gj31gqPL1ECc",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "\r\n{    \"data\": {\r\n       \"refDocnoI\": 9,\r\n       \"docnoI\": 9,\r\n       \"replacementCode\": \"CB\"\r\n   },\r\n   \"primaryKeys\": {\r\n       \"docnoI\": 9,\r\n       \"refDocnoI\": 35,\r\n       \"replacementCode\": \"C\"\r\n   }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://kupol-dev.ecias.ru/api/maintenance_program/entities/doc_replacement/update",
+              "protocol": "https",
+              "host": ["kupol-dev", "ecias", "ru"],
+              "path": ["api", "maintenance_program", "entities", "doc_replacement", "update"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "APN1895",
+      "item": [
+        {
+          "name": "kpl_wo_event_link/search_events",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"component\": {\r\n        \"partno\": [\r\n            \"3-1530\"\r\n        ],\r\n        \"serialno\": [\r\n            \"8580\"\r\n        ],\r\n        \"installedParts\": false,\r\n        \"notInstalledParts\": false\r\n    },\r\n    \"partReq\": {\r\n        \"removalReq\": false,\r\n        \"onWing\": false\r\n    },\r\n    \"maintenanceEvent\": {\r\n        \"onlyClosed\": false,\r\n        \"onlyPlannable\": false,\r\n        \"onlyNotInForecast\": false,\r\n        \"onlyExtended\": false,\r\n        \"onlyAutoReportBack\": false,\r\n        \"onlyForecastErrorsOrWarnings\": false,\r\n        \"initialised\": false,\r\n        \"notInitiliased\": true,\r\n        \"currentEvents\": true,\r\n        \"futureEvents\": false,\r\n        \"historyEvents\": false\r\n    },\r\n    \"limit\": 25,\r\n    \"offset\": 0,\r\n    \"search\": {\r\n        \"orderBy\": []\r\n    }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://kupol-stg.ecias.ru/api/event_tracking/entities/kpl_wo_event_link/search_events",
+              "protocol": "https",
+              "host": ["kupol-stg", "ecias", "ru"],
+              "path": ["api", "event_tracking", "entities", "kpl_wo_event_link", "search_events"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "kpl_wo_event_link/preview_initialise",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"mevtHeadernoI\": 1103995,\r\n            \"initialiseStrategy\": \"AC\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://kupol-stg.ecias.ru/api/event_tracking/entities/kpl_wo_event_link/preview_initialise",
+              "protocol": "https",
+              "host": ["kupol-stg", "ecias", "ru"],
+              "path": [
+                "api",
+                "event_tracking",
+                "entities",
+                "kpl_wo_event_link",
+                "preview_initialise"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "token",
+      "value": ""
+    }
+  ]
+}

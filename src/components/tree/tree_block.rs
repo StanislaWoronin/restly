@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::{collections::HashMap, fs, path::PathBuf};
 
 use ratatui::{
     Frame,
@@ -9,12 +9,10 @@ use ratatui::{
 };
 
 use crate::{
-    app::log::LogLevel,
-    components::{EditableComponent, tree::tree_node::Collection},
-    errors::{AppError, AppResult},
+    components::EditableComponent,
+    converter::collection::{Collection, Item, Request},
+    errors::AppResult,
 };
-
-use crate::debug_log;
 
 pub struct TreeBlock {
     pub content: Vec<Line<'static>>,
@@ -25,7 +23,7 @@ pub struct TreeBlock {
 impl TreeBlock {
     pub fn new() -> Self {
         Self {
-            content: vec![Line::default()],
+            content: vec![],
             is_visible: false,
             is_editing: false,
         }
@@ -50,22 +48,35 @@ impl TreeBlock {
         frame.render_widget(paragraph, area);
     }
 
-    pub fn load_collection(&mut self) -> AppResult<()> {
-        let path = PathBuf::from("config").join("collection.json");
+    pub fn load_collections(&mut self) -> AppResult<()> {
+        let mut content = Vec::new();
 
-        if !path.exists() {
-            debug_log!(LogLevel::Debug, "Collection path: {:?}", path);
+        let mut paths: Vec<PathBuf> = fs::read_dir(PathBuf::from("collections"))?
+            .filter_map(|e| e.ok())
+            .map(|e| e.path())
+            .filter(|p| p.is_file() && p.extension().and_then(|e| e.to_str()) == Some("json"))
+            .collect();
 
-            return Err(AppError::CollectionNotFound(path));
+        paths.sort();
+
+        for path in paths {
+            let collection = Collection::from_file(path.to_str().unwrap())?;
+
+            if collection.is_visible {
+                let items = load_items(collection.item);
+            } else {
+                content.push(Line::from(collection.name));
+            }
         }
 
-        let collection = Collection::from_file(path.to_str().unwrap())?;
-        let name = path
-            .file_stem()
-            .unwrap_or_default()
-            .to_string_lossy()
-            .to_string();
+        fs::write("collections_debug.txt", format!("{:#?}\n", content))?;
 
         Ok(())
+    }
+
+    fn load_items(items: HashMap<String, Item>) {
+      match  {
+
+      }
     }
 }

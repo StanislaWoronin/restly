@@ -76,11 +76,11 @@ impl KeyHandler for App {
                 }
                 true
             }
-            (KeyCode::Char('L'), KeyModifiers::SHIFT) => {
-                debug_log!("Load collection");
-                let _ = self.tree_block.load_collections()?;
-                true
-            }
+            // (KeyCode::Char('L'), KeyModifiers::SHIFT) => {
+            //     debug_log!("Load collection");
+            //     let _ = self.tree_block.load_collections()?;
+            //     true
+            // }
             _ => false,
         };
 

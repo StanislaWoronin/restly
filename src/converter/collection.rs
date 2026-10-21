@@ -22,23 +22,19 @@ pub struct Collection {
 #[serde(untagged)]
 pub enum Item {
     Folder(Folder),
-    Request(RequestItem),
+    Request(Request),
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Folder {
+    pub name: String,
     pub item: HashMap<String, Item>,
     pub is_visible: bool,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct RequestItem {
-    pub name: String,
-    pub request: Request,
-}
-
-#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Request {
+    pub name: String,
     pub method: String,
     pub url: Url,
     pub header: Option<Vec<Header>>,
@@ -70,7 +66,7 @@ impl Collection {
         for (item_name, item) in &self.item {
             let raw_item = match item {
                 Item::Folder(folder) => RawItem::Folder(folder.to_raw(item_name)),
-                Item::Request(request) => RawItem::Request(request.to_raw()),
+                Item::Request(request) => RawItem::Request(request.to_raw(item_name)),
             };
             items.push(raw_item);
         }
@@ -91,7 +87,7 @@ impl Folder {
         for (item_name, item) in &self.item {
             let raw_item = match item {
                 Item::Folder(folder) => RawItem::Folder(folder.to_raw(item_name)),
-                Item::Request(request) => RawItem::Request(request.to_raw()),
+                Item::Request(request) => RawItem::Request(request.to_raw(item_name)),
             };
             items.push(raw_item);
         }
@@ -103,25 +99,25 @@ impl Folder {
     }
 }
 
-impl RequestItem {
-    pub fn to_raw(&self) -> RawRequestItem {
+impl Request {
+    /// `name` берётся из ключа `HashMap` на уровне родителя —
+    /// в Postman имя живёт на уровне элемента, а не внутри `request`.
+    pub fn to_raw(&self, name: &str) -> RawRequestItem {
         RawRequestItem {
-            name: self.name.clone(),
-            request: self.request.to_raw(),
+            name: name.to_string(),
+            request: RawRequest {
+                method: self.method.clone(),
+                url: self.url.to_raw(),
+                header: self.header.clone(),
+                body: Some(RawBody {
+                    raw: Some(self.body.clone()),
+                }),
+            },
         }
     }
-}
 
-impl Request {
-    pub fn to_raw(&self) -> RawRequest {
-        RawRequest {
-            method: self.method.clone(),
-            url: self.url.to_raw(),
-            header: self.header.clone(),
-            body: Some(RawBody {
-                raw: Some(self.body.clone()),
-            }),
-        }
+    pub fn get_full_url(&self) -> String {
+        self.url.raw.clone().unwrap_or_default()
     }
 }
 
@@ -150,24 +146,5 @@ impl Collection {
         let json = serde_json::to_string_pretty(&raw)?;
         std::fs::write(path, json)?;
         Ok(())
-    }
-}
-
-impl Folder {
-    pub fn new() -> Self {
-        Self {
-            item: HashMap::new(),
-            is_visible: false,
-        }
-    }
-}
-
-impl RequestItem {
-    pub fn get_full_url(&self) -> String {
-        if let Some(raw) = &self.request.url.raw {
-            raw.clone()
-        } else {
-            format!("{}", self.request.method)
-        }
     }
 }

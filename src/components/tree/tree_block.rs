@@ -1,5 +1,6 @@
 use std::{collections::HashMap, fs, path::PathBuf};
 
+use indexmap::IndexMap;
 use ratatui::{
     Frame,
     layout::Rect,
@@ -15,7 +16,8 @@ use crate::{
 };
 
 pub struct TreeBlock {
-    pub content: Vec<Line<'static>>,
+    pub content: IndexMap<String, Line<'static>>,
+    request_data: HashMap<String, Request>,
     pub is_visible: bool,
     pub is_editing: bool,
 }
@@ -23,7 +25,8 @@ pub struct TreeBlock {
 impl TreeBlock {
     pub fn new() -> Self {
         Self {
-            content: vec![],
+            content: IndexMap::new(),
+            request_data: HashMap::new(),
             is_visible: false,
             is_editing: false,
         }
@@ -41,17 +44,41 @@ impl TreeBlock {
             return;
         }
 
-        let paragraph = Paragraph::new(self.content.clone())
+        let lines: Vec<Line> = self.content.values().cloned().collect();
+
+        let paragraph = Paragraph::new(lines)
             .block(block)
             .style(Style::default().fg(Color::White));
 
         frame.render_widget(paragraph, area);
     }
 
-    pub fn load_collections(&mut self) -> AppResult<()> {
-        let mut content = Vec::new();
+    pub fn load_content(&mut self) -> AppResult<()> {
+        let mut collections = self.load_collections()?;
+        collections.sort_by(|a, b| a.name.cmp(&b.name));
 
-        let mut paths: Vec<PathBuf> = fs::read_dir(PathBuf::from("collections"))?
+        for collection in collections {
+            let name = collection.name.clone();
+            self.content
+                .insert(name.clone(), Self::get_line(name.clone(), 1));
+
+            if collection.is_visible {
+                self.load_items(name, collection.item, 2);
+            }
+        }
+
+        Ok(())
+    }
+
+    fn get_line(content: String, level: usize) -> Line<'static> {
+        let content = format!("{}{}", " ".repeat(level), content);
+        Line::from(content)
+    }
+
+    fn load_collections(&self) -> AppResult<Vec<Collection>> {
+        let mut collections = Vec::new();
+
+        let mut paths: Vec<PathBuf> = fs::read_dir("collections")?
             .filter_map(|e| e.ok())
             .map(|e| e.path())
             .filter(|p| p.is_file() && p.extension().and_then(|e| e.to_str()) == Some("json"))
@@ -60,23 +87,37 @@ impl TreeBlock {
         paths.sort();
 
         for path in paths {
-            let collection = Collection::from_file(path.to_str().unwrap())?;
-
-            if collection.is_visible {
-                let items = load_items(collection.item);
-            } else {
-                content.push(Line::from(collection.name));
-            }
+            let collection = Collection::from_file(&path.to_string_lossy())?;
+            collections.push(collection);
         }
 
-        fs::write("collections_debug.txt", format!("{:#?}\n", content))?;
-
-        Ok(())
+        Ok(collections)
     }
 
-    fn load_items(items: HashMap<String, Item>) {
-      match  {
+    fn load_items(&mut self, path: String, mut items: HashMap<String, Item>, level: usize) {
+        let mut names: Vec<String> = items.keys().cloned().collect();
+        names.sort();
 
-      }
+        for item_name in names {
+            let item = items.remove(&item_name).expect("key exists");
+            let full_path = format!("{}/{}", path, item_name);
+
+            match item {
+                Item::Folder(folder) => {
+                    self.content
+                        .insert(full_path.clone(), Self::get_line(folder.name, level));
+
+                    if folder.is_visible {
+                        self.load_items(full_path, folder.item, level + 1);
+                    }
+                }
+                Item::Request(req) => {
+                    let name = req.name.clone();
+
+                    self.request_data.insert(full_path.clone(), req);
+                    self.content.insert(full_path, Self::get_line(name, level));
+                }
+            }
+        }
     }
 }

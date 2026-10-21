@@ -1,4 +1,0 @@
-[
-    Line::from("My Collection1"),
-    Line::from("My Collection2"),
-]

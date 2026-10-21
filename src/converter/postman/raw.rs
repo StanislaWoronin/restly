@@ -2,9 +2,7 @@ use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
-use crate::converter::collection::{
-    Collection, Folder, Header, Item, QueryParam, Request, RequestItem, Url,
-};
+use crate::converter::collection::{Collection, Folder, Header, Item, QueryParam, Request, Url};
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct RawCollection {
@@ -62,13 +60,13 @@ impl From<RawCollection> for Collection {
         for raw_item in raw.item {
             match raw_item {
                 RawItem::Folder(folder) => {
-                    let name = folder.name.clone();
-                    let folder: Folder = folder.into();
-                    items.insert(name, Item::Folder(folder));
+                    items.insert(folder.name.clone(), Item::Folder(folder.into()));
                 }
-                RawItem::Request(request) => {
-                    let request_item: RequestItem = request.into();
-                    items.insert(request_item.name.clone(), Item::Request(request_item));
+                RawItem::Request(req) => {
+                    items.insert(
+                        req.name.clone(),
+                        Item::Request(req.request.into_request(req.name)),
+                    );
                 }
             }
         }
@@ -76,7 +74,7 @@ impl From<RawCollection> for Collection {
         Collection {
             name: raw.info.name,
             item: items,
-            is_visible: false,
+            is_visible: true,
         }
     }
 }
@@ -88,40 +86,33 @@ impl From<RawFolder> for Folder {
         for raw_item in raw.item {
             match raw_item {
                 RawItem::Folder(folder) => {
-                    let name = folder.name.clone();
-                    let folder: Folder = folder.into();
-                    items.insert(name, Item::Folder(folder));
+                    items.insert(folder.name.clone(), Item::Folder(folder.into()));
                 }
-                RawItem::Request(request) => {
-                    let request_item: RequestItem = request.into();
-                    items.insert(request_item.name.clone(), Item::Request(request_item));
+                RawItem::Request(req) => {
+                    items.insert(
+                        req.name.clone(),
+                        Item::Request(req.request.into_request(req.name)),
+                    );
                 }
             }
         }
 
         Folder {
-            item: items,
-            is_visible: false,
-        }
-    }
-}
-
-impl From<RawRequestItem> for RequestItem {
-    fn from(raw: RawRequestItem) -> Self {
-        RequestItem {
             name: raw.name,
-            request: raw.request.into(),
+            item: items,
+            is_visible: true,
         }
     }
 }
 
-impl From<RawRequest> for Request {
-    fn from(raw: RawRequest) -> Self {
+impl RawRequest {
+    fn into_request(self, name: String) -> Request {
         Request {
-            method: raw.method,
-            url: raw.url.into(),
-            header: raw.header,
-            body: raw.body.and_then(|b| b.raw).unwrap_or_default(),
+            name,
+            method: self.method,
+            url: self.url.into(),
+            header: self.header,
+            body: self.body.and_then(|b| b.raw).unwrap_or_default(),
         }
     }
 }

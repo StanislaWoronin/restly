@@ -54,7 +54,7 @@ pub struct App {
 impl App {
     pub fn new() -> AppResult<Self> {
         let mut tree_block = TreeBlock::new();
-        tree_block.load_collections()?;
+        tree_block.load_content()?;
 
         Ok(Self {
             focus_page: FocusPage::default(),
